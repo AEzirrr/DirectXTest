@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="DirectXTest/DirectXTest.vcxproj" Id="1169df11-fd94-43c8-91a2-ecfd1af899d9" />
+</Solution>
