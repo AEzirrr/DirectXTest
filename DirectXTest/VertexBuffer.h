@@ -12,8 +12,14 @@ public:
 	~VertexBuffer();
 
 	bool load(void* list_vertices, UINT size_vertex, UINT size_list, void* shader_byte_code, UINT size_byte_shader);
+
+	void update(DeviceContext* context, void* vertex_list, UINT size_byte_list);
+
 	UINT getSizeVertexList();
 	bool release();
+
+
+	ID3D11Buffer* getBuffer() const { return m_buffer; }
 
 private:
 	UINT m_size_vertex;

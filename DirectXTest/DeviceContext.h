@@ -6,6 +6,7 @@ class VertexBuffer;
 class VertexShader;
 class PixelShader;
 class RasterizerState;
+class ConstantBuffer;
 
 class DeviceContext
 {
@@ -27,10 +28,18 @@ public:
 	void setRasterizerState(RasterizerState* rasterizer_state); // method for setting the rasterizer state to the device context
 	void clearRasterizerState(RasterizerState* rasterizer_state); // method for clearing the rasterizer state from the device context
 
+public:
+
+	void setConstantBuffer(VertexShader* vertex_shader, ConstantBuffer* constant_buffer);
+	void setConstantBuffer(PixelShader* pixel_shader, ConstantBuffer* constant_buffer);
+
 	bool release();
 	~DeviceContext();
+		
+	ID3D11DeviceContext* getD3DContext() { return m_device_context; }
 
 private:
 	ID3D11DeviceContext* m_device_context;
+	friend class ConstantBuffer;
 };
 

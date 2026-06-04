@@ -4,6 +4,7 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "RasterizerState.h"
+#include "ConstantBuffer.h"
 
 DeviceContext::DeviceContext(ID3D11DeviceContext* device_context) :m_device_context(device_context)
 {
@@ -86,6 +87,16 @@ void DeviceContext::clearRasterizerState(RasterizerState* rasterizer_state) // c
 	{
 		rasterizer_state->RemoveRasterizer(this->m_device_context);
 	}
+}
+
+void DeviceContext::setConstantBuffer(VertexShader* vertex_shader, ConstantBuffer* constant_buffer)
+{
+	m_device_context->VSSetConstantBuffers(0, 1, &constant_buffer->m_buffer);
+}
+
+void DeviceContext::setConstantBuffer(PixelShader * pixel_shader, ConstantBuffer * constant_buffer)
+{
+	m_device_context->PSSetConstantBuffers(0, 1, &constant_buffer->m_buffer);
 }
 
 bool DeviceContext::release()

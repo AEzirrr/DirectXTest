@@ -1,5 +1,6 @@
 #include "VertexBuffer.h"
 #include "GraphicsEngine.h"
+#include "DeviceContext.h"
 
 VertexBuffer::VertexBuffer() :m_input_layout(0), m_buffer(0)
 {}
@@ -46,6 +47,18 @@ bool VertexBuffer::load(void* list_vertices, UINT size_vertex, UINT size_list, v
 	}
 
     return true;
+}
+
+void VertexBuffer::update(DeviceContext* context, void* vertex_list, UINT size_byte_list)
+{
+	context->getD3DContext()->UpdateSubresource(
+		this->m_buffer,
+		0,
+		nullptr,
+		vertex_list,
+		0,
+		0
+	);
 }
 
 UINT VertexBuffer::getSizeVertexList()

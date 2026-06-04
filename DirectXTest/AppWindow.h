@@ -7,6 +7,7 @@
 #include "VertexShader.h"
 #include "PixelShader.h"
 #include "RasterizerState.h"
+#include "ConstantBuffer.h"
 
 #include "Quad.h"
 
@@ -15,6 +16,8 @@ class AppWindow : public Window
 public:
 	AppWindow();
 	~AppWindow();
+
+	void updateQuadPosition();
 
 	virtual void onCreate() override;
 	virtual void onUpdate() override;
@@ -29,9 +32,11 @@ private:
 	VertexShader* m_vertex_shader;
 	PixelShader* m_pixel_shader;
 
-	Quad* m_rectangle1;
-	Quad* m_rectangle2;
-	Quad* m_rectangle3;
+	Quad* m_quad1;
+	Quad* m_quad2;
+	Quad* m_quad3;
+
+	ConstantBuffer* m_constant_buffer;
 
 };
 

@@ -6,6 +6,7 @@ class DeviceContext;
 class VertexBuffer;
 class VertexShader;
 class PixelShader;
+class ConstantBuffer;
 
 class GraphicsEngine
 {
@@ -23,6 +24,8 @@ public:
 	VertexBuffer* createVertexBuffer();
 	VertexShader* createVertexShader(const void* shader_byte_code, size_t byte_code_size);
 	PixelShader* createPixelShader(const void* shader_byte_code, size_t byte_code_size);
+
+	ConstantBuffer* createConstantBuffer();
 
 	ID3D11Device* getDevice() { return m_d3d_device; }
 public:
@@ -63,5 +66,6 @@ private:
 	friend class VertexBuffer;
 	friend class VertexShader;
 	friend class PixelShader;
+	friend class ConstantBuffer;
 };
 
