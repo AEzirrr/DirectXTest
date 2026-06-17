@@ -9,12 +9,20 @@ public:
 
 	Vector3D(const Vector3D& vector) : x(vector.x), y(vector.y), z(vector.z) {}
 
-	static Vector3D lerp(const Vector3D& start, const Vector3D& end, float delta) {
-		return Vector3D(
-			start.x + (end.x - start.x) * delta,
-			start.y + (end.y - start.y) * delta,
-			start.z + (end.z - start.z) * delta
-		);
+	static Vector3D zeros() {
+		return Vector3D(0, 0, 0);
+	}
+
+	static Vector3D ones() {
+		return Vector3D(1, 1, 1);
+	}
+
+	Vector3D operator +(Vector3D vector) {
+		return Vector3D(x + vector.x, y + vector.y, z + vector.z);
+	}
+
+	Vector3D operator *(float scalar) {
+		return Vector3D(x * scalar, y * scalar, z * scalar);
 	}
 
 	~Vector3D() {}

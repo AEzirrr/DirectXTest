@@ -7,6 +7,7 @@ class VertexBuffer;
 class VertexShader;
 class PixelShader;
 class ConstantBuffer;
+class IndexBuffer;
 
 class GraphicsEngine
 {
@@ -22,6 +23,7 @@ public:
 	SwapChain* createSwapChain();
 	DeviceContext* getImmediateDeviceContext();
 	VertexBuffer* createVertexBuffer();
+	IndexBuffer* createIndexBuffer();
 	VertexShader* createVertexShader(const void* shader_byte_code, size_t byte_code_size);
 	PixelShader* createPixelShader(const void* shader_byte_code, size_t byte_code_size);
 
@@ -34,8 +36,6 @@ public:
 
 	void releaseCompiledShader();
 
-	//bool createShaders();
-	//void setShaders();
 public:
 	static GraphicsEngine* getInstance();
 
@@ -46,7 +46,7 @@ private:
 	ID3D11Device* m_d3d_device;
 	D3D_FEATURE_LEVEL m_feature_level;
 	ID3D11DeviceContext* m_imm_context;
-	
+
 private:
 	IDXGIDevice* m_dxgi_device;
 	IDXGIAdapter* m_dxgi_adapter;
@@ -59,13 +59,11 @@ private:
 	ID3D11VertexShader* m_vertex_shader = nullptr;
 	ID3D11PixelShader* m_pixel_shader = nullptr;
 
-
-
 private:
 	friend class SwapChain;
 	friend class VertexBuffer;
 	friend class VertexShader;
 	friend class PixelShader;
 	friend class ConstantBuffer;
+	friend class IndexBuffer;
 };
-

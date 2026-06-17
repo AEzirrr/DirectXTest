@@ -5,6 +5,7 @@
 #include "PixelShader.h"
 #include "RasterizerState.h"
 #include "ConstantBuffer.h"
+#include "IndexBuffer.h"
 
 DeviceContext::DeviceContext(ID3D11DeviceContext* device_context) :m_device_context(device_context)
 {
@@ -16,8 +17,19 @@ DeviceContext::DeviceContext(ID3D11DeviceContext* device_context) :m_device_cont
 bool DeviceContext::clearRenderTargetColor(SwapChain* swap_chain, float red, float green, float blue, float alpha)
 {
 	float clear_color[] = { red, green, blue, alpha };
+
+	// 1. Clear the color buffer (Your existing code)
 	m_device_context->ClearRenderTargetView(swap_chain->m_render_target_view, clear_color);
-	m_device_context->OMSetRenderTargets(1, &swap_chain->m_render_target_view, NULL);
+
+	// 2. Clear the depth buffer (NEW CODE)
+	// We clear the depth to 1.0f (furthest away) so new pixels will easily pass the depth test
+	if (swap_chain->m_depth_stencil_view) {
+		m_device_context->ClearDepthStencilView(swap_chain->m_depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
+
+	// 3. Bind BOTH views to the Output Merger stage (UPDATED CODE)
+	// Change the last parameter from NULL to your new depth view
+	m_device_context->OMSetRenderTargets(1, &swap_chain->m_render_target_view, swap_chain->m_depth_stencil_view);
 
 	return true;
 }
@@ -40,6 +52,13 @@ void DeviceContext::drawTriangleList(UINT vertex_count, UINT start_vertex_index)
 	m_device_context->Draw(vertex_count, start_vertex_index);
 }
 
+void DeviceContext::drawIndexedTriangleList(UINT index_count, UINT start_vertex_index, UINT start_index_location)
+{
+	m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	m_device_context->DrawIndexed(index_count, start_index_location, start_vertex_index);
+}
+
 void DeviceContext::drawTriangleStrip(UINT vertex_count, UINT start_vertex_index)
 {
 	m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -55,8 +74,8 @@ void DeviceContext::setViewportSize(UINT width, UINT height)
 	viewport.Height = height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;  
-	viewport.TopLeftY = 0.0f; 
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
 
 	m_device_context->RSSetViewports(1, &viewport);
 
@@ -94,9 +113,14 @@ void DeviceContext::setConstantBuffer(VertexShader* vertex_shader, ConstantBuffe
 	m_device_context->VSSetConstantBuffers(0, 1, &constant_buffer->m_buffer);
 }
 
-void DeviceContext::setConstantBuffer(PixelShader * pixel_shader, ConstantBuffer * constant_buffer)
+void DeviceContext::setConstantBuffer(PixelShader* pixel_shader, ConstantBuffer* constant_buffer)
 {
 	m_device_context->PSSetConstantBuffers(0, 1, &constant_buffer->m_buffer);
+}
+
+void DeviceContext::setIndexBuffer(IndexBuffer* index_buffer)
+{
+	m_device_context->IASetIndexBuffer(index_buffer->m_buffer, DXGI_FORMAT_R32_UINT, 0);
 }
 
 bool DeviceContext::release()
@@ -107,5 +131,4 @@ bool DeviceContext::release()
 }
 
 DeviceContext::~DeviceContext()
-{
-}
+{}
