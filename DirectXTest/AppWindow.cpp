@@ -198,7 +198,6 @@ void AppWindow::onKeyDown(int key)
 
 void AppWindow::onKeyUp(int key)
 {
-	// Stop moving when keys are released
 	if (key == 'W' || key == 'S') { m_key_move_z = 0.0f; }
 	if (key == 'A' || key == 'D') { m_key_move_x = 0.0f; }
 }

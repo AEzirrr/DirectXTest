@@ -18,7 +18,6 @@ struct plane_vertex {
 
 Plane::Plane(std::string name, void* shader_byte_code, size_t size_shader) : AGameObject(name)
 {
-	// Local vertex configuration for a 3D Plane
 	plane_vertex vertex_list[] =
 	{
 		{Vector3D(-0.5f, 0.0f, -0.5f), Vector3D(1, 1, 1)},
@@ -32,7 +31,6 @@ Plane::Plane(std::string name, void* shader_byte_code, size_t size_shader) : AGa
 		2, 3, 0 
 	};
 
-	// Initialize Buffers
 	m_vertex_buffer = GraphicsEngine::getInstance()->createVertexBuffer();
 	m_vertex_buffer->load(vertex_list, sizeof(plane_vertex), ARRAYSIZE(vertex_list), shader_byte_code, size_shader);
 

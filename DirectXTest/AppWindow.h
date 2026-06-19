@@ -29,7 +29,6 @@ public:
 	virtual void onFocus() override;
 	virtual void onKillFocus() override;
 
-	// Inherited via InputListener
 	void onKeyDown(int key) override;
 	void onKeyUp(int key) override;
 	void onMouseMove(const Point& mouse_pos) override;
