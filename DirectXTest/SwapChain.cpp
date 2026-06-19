@@ -28,7 +28,6 @@ bool SwapChain::init(HWND hwnd, UINT width, UINT height)
 	swap_chain_desc.Windowed = TRUE; // Windowed mode
 
 
-	// Create the swap chain for the window
 	HRESULT hr = GraphicsEngine::getInstance()->m_dxgi_factory->CreateSwapChain(device, &swap_chain_desc, &m_swap_chain);
 
 	if (FAILED(hr))
@@ -46,6 +45,33 @@ bool SwapChain::init(HWND hwnd, UINT width, UINT height)
 	if (FAILED(hr))
 		return false;
 
+	// Depth Stencil Implementation
+	D3D11_TEXTURE2D_DESC tex_desc = {};
+	tex_desc.Width = width;
+	tex_desc.Height = height;
+	tex_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	tex_desc.Usage = D3D11_USAGE_DEFAULT;
+	tex_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	tex_desc.MipLevels = 1;
+	tex_desc.SampleDesc.Count = 1;
+	tex_desc.SampleDesc.Quality = 0;
+	tex_desc.MiscFlags = 0;
+	tex_desc.ArraySize = 1;
+	tex_desc.CPUAccessFlags = 0;
+
+	ID3D11Texture2D* depth_buffer = nullptr;
+	hr = device->CreateTexture2D(&tex_desc, nullptr, &depth_buffer);
+
+	if (FAILED(hr))
+		return false;
+
+	hr = device->CreateDepthStencilView(depth_buffer, nullptr, &m_depth_stencil_view);
+
+	depth_buffer->Release();
+
+	if (FAILED(hr))
+		return false;
+
 	return true;
 }
 
@@ -57,7 +83,9 @@ bool SwapChain::present(bool vsync)
 
 bool SwapChain::release()
 {
-	m_swap_chain->Release();
+	if (m_depth_stencil_view) m_depth_stencil_view->Release();
+	if (m_render_target_view) m_render_target_view->Release();
+	if (m_swap_chain) m_swap_chain->Release();
 	delete this;
 	return true;
 }

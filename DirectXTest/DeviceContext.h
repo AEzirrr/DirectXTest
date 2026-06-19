@@ -6,6 +6,8 @@ class VertexBuffer;
 class VertexShader;
 class PixelShader;
 class RasterizerState;
+class ConstantBuffer;
+class IndexBuffer;
 
 class DeviceContext
 {
@@ -15,22 +17,31 @@ public:
 	bool clearRenderTargetColor(SwapChain* swap_chain, float red, float green, float blue, float alpha);
 	void setVertexBuffer(VertexBuffer* vertex_buffer);
 	void drawTriangleList(UINT vertex_count, UINT start_vertex_index);
+	void drawIndexedTriangleList(UINT index_count, UINT start_vertex_index, UINT start_index_location);
 	void drawTriangleStrip(UINT vertex_count, UINT start_vertex_index);
 
 	void setViewportSize(UINT width, UINT height);
-	
+
 	void setVertexShader(VertexShader* vertex_shader);
 	void setPixelShader(PixelShader* pixel_shader);
 
 public:
-
 	void setRasterizerState(RasterizerState* rasterizer_state); // method for setting the rasterizer state to the device context
 	void clearRasterizerState(RasterizerState* rasterizer_state); // method for clearing the rasterizer state from the device context
+
+public:
+	void setConstantBuffer(VertexShader* vertex_shader, ConstantBuffer* constant_buffer);
+	void setConstantBuffer(PixelShader* pixel_shader, ConstantBuffer* constant_buffer);
+
+public:
+	void setIndexBuffer(IndexBuffer* index_buffer);
 
 	bool release();
 	~DeviceContext();
 
+	ID3D11DeviceContext* getD3DContext() { return m_device_context; }
+
 private:
 	ID3D11DeviceContext* m_device_context;
+	friend class ConstantBuffer;
 };
-
