@@ -2,6 +2,7 @@
 #include "GraphicsEngine.h"
 #include "DeviceContext.h"
 #include <Windows.h>
+#include "SceneCameraHandler.h"
 
 __declspec(align(16)) struct plane_constant {
 	Matrix4x4 m_world;
@@ -20,10 +21,10 @@ Plane::Plane(std::string name, void* shader_byte_code, size_t size_shader) : AGa
 {
 	plane_vertex vertex_list[] =
 	{
-		{Vector3D(-0.5f, 0.0f, -0.5f), Vector3D(1, 1, 1)},
-		{Vector3D(-0.5f, 0.0f,  0.5f), Vector3D(1, 1, 1)}, 
-		{Vector3D(0.5f, 0.0f,  0.5f), Vector3D(1, 1, 1)}, 
-		{Vector3D(0.5f, 0.0f, -0.5f), Vector3D(1, 1, 1)}  
+		{Vector3D(-0.5f, 0.0f, -0.5f), Vector3D(0.18f, 0.18f, 0.18f)},
+		{Vector3D(-0.5f, 0.0f,  0.5f), Vector3D(0.18f, 0.18f, 0.18f)}, 
+		{Vector3D(0.5f, 0.0f,  0.5f), Vector3D(0.18f, 0.18f, 0.18f)}, 
+		{Vector3D(0.5f, 0.0f, -0.5f), Vector3D(0.18f, 0.18f, 0.18f)}  
 	};
 
 	unsigned int index_list[] = {
@@ -53,6 +54,11 @@ Plane::~Plane()
 void Plane::update(float deltaTime)
 {
 	Matrix4x4 rotx, roty, rotz, scale_mat, translation_mat;
+	plane_constant cc;
+
+	m_total_time += deltaTime;
+
+	cc.m_time = m_total_time;
 
 	rotx.setRotationX(m_rotation.x);
 	roty.setRotationY(m_rotation.y);
@@ -70,12 +76,11 @@ void Plane::update(float deltaTime)
 	m_world_matrix *= translation_mat;
 }
 
-void Plane::draw(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader)
+void Plane::draw(Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader)
 {
 	plane_constant cc;
-	cc.m_time = GetTickCount();
 	cc.m_world = m_world_matrix;
-	cc.m_view = viewMatrix;
+	cc.m_view = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
 	cc.m_projection = projectionMatrix;
 	cc.m_color = Vector3D(1.0f, 1.0f, 1.0f);
 

@@ -21,6 +21,10 @@ public:
 		return Vector3D(x + vector.x, y + vector.y, z + vector.z);
 	}
 
+	Vector3D operator -(Vector3D vector) {
+		return Vector3D(x - vector.x, y - vector.y, z - vector.z);
+	}
+
 	Vector3D operator *(float scalar) {
 		return Vector3D(x * scalar, y * scalar, z * scalar);
 	}

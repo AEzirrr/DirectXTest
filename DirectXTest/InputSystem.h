@@ -20,6 +20,9 @@ public:
 public:
 	static InputSystem* getInstance();
 
+public:
+	void onMouseWheel(int delta);
+
 private:
 	std::map<InputListener*, InputListener*> m_listeners;
 	unsigned char m_keyboard_state[256] = {};

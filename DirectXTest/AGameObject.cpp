@@ -10,8 +10,19 @@ AGameObject::AGameObject(std::string name)
 
 AGameObject::~AGameObject() {}
 
-void AGameObject::setPosition(float x, float y, float z) 
-{ 
+std::string AGameObject::setName(std::string name)
+{
+	m_name = name;
+	return m_name;
+}
+
+std::string AGameObject::getName() const
+{
+	return m_name;
+}
+
+void AGameObject::setPosition(float x, float y, float z)
+{	
 	m_position = Vector3D(x, y, z); 
 }
 

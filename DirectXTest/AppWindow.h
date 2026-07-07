@@ -11,11 +11,16 @@
 #include "ConstantBuffer.h"
 #include "IndexBuffer.h"
 #include "Matrix4x4.h"
-
 #include "Cube.h"
+#include "Sphere.h"
 #include "Plane.h"
+#include <chrono>
+#include <vector>
+#include "Camera.h"
 
-class AppWindow : public Window, public InputListener
+#include "ToolbarScreen.h"
+
+class AppWindow : public Window, public InputListener, public ToolbarListener
 {
 public:
 	AppWindow();
@@ -36,6 +41,11 @@ public:
 	void onLeftMouseUp(const Point& mouse_pos) override;
 	void onRightMouseDown(const Point& mouse_pos) override;
 	void onRightMouseUp(const Point& mouse_pos) override;
+	void onMouseWheel(int delta) override;
+
+	void onCreateCubeClicked() override;
+	void onCreateSphereClicked() override;
+	void onCreatePlaneClicked() override;
 
 private:
 	RasterizerState* rasterizerState;
@@ -51,27 +61,36 @@ private:
 
 	Cube* m_cube1;
 	Cube* m_cube2;
+	Cube* m_cube3;
+
+	float cube_rotx;
+	float cube_roty;
+
+	std::vector<Cube*> m_cubes;
+
+	std::vector<AGameObject*> m_game_objects;
+
+	//std::vector<Sphere*> m_spheres;
+
+	void* m_shader_byte_code = nullptr;
+	size_t m_size_shader = 0;
+
+	Vector3D m_boundsMin;
+	Vector3D m_boundsMax;
+
 	Plane* m_plane;
 
-	unsigned long m_old_time = 0;
-	unsigned long current_time = 0;
+	std::chrono::time_point<std::chrono::steady_clock> m_old_time;
 	float deltaTime = 0.0f;
 
-	float rot_x = 0.0f;
-	float rot_y = 0.0f;
+	float m_target_fps = 60.0f;
+	float m_target_frame_time = 1.0f / m_target_fps;
 
-	float m_key_move_x = 0.0f;
-	float m_key_move_y = 0.0f;
-	float m_key_move_z = 0.0f;
-
-	float m_key_rot_speed_x = 0.0f;
-	float m_key_rot_speed_y = 0.0f;
 
 	float m_scale_cube = 1.0f;
 
-private:
-	Matrix4x4 m_view_matrix;
-	Matrix4x4 m_projection_matrix;
 
-	Vector3D m_cam_pos;
+
+private:
+	Matrix4x4 m_projection_matrix;
 };

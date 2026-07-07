@@ -13,7 +13,10 @@ public:
 	virtual ~AGameObject();
 
 	virtual void update(float deltaTime) = 0;
-	virtual void draw(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
+	virtual void draw(Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader) = 0;
+
+	std::string setName(std::string name);
+	std::string getName() const;
 
 	void setPosition(float x, float y, float z);
 	void setPosition(Vector3D pos);

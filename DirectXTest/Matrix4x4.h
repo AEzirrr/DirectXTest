@@ -123,6 +123,7 @@ public:
 		m_mat[2][2] = z_far / (z_far - z_near);
 		m_mat[2][3] = 1.0f;
 		m_mat[3][2] = -(z_near * z_far) / (z_far - z_near);
+		m_mat[3][3] = 0.0f;
 	}
 
 	void setOrthoLH(float width, float height, float z_near, float z_far) {
