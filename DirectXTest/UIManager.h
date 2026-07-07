@@ -11,10 +11,11 @@
 
 class UINames {
 public:
-	const String PROFILER_SCREEN = "PROFILER_SCREEN";
-	const String TOOLBAR_SCREEN = "TOOLBAR_SCREEN";
-	const String INSPECTOR_SCREEN = "INSPECTOR_SCREEN";
-	const String HIERARCHY_SCREEN = "HIERARCHY_SCREEN";
+	const String TOOLBAR_SCREEN = "Toolbar";
+	const String INSPECTOR_SCREEN = "Inspector";
+	const String HIERARCHY_SCREEN = "Hierarchy";
+	const String MATERIAL_INSPECTOR_SCREEN = "Material Inspector";
+	const String PROFILER_SCREEN = "Profiler";
 };
 
 

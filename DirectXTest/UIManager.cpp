@@ -4,6 +4,8 @@
 #include "InspectorScreen.h"
 #include "HierarchyScreen.h"
 #include "ToolbarScreen.h"
+#include "ProfilerScreen.h"
+#include "MaterialInspectorScreen.h"
 
 UIManager* UIManager::sharedInstance = nullptr;
 
@@ -80,9 +82,13 @@ UIManager::UIManager(HWND windowHandle)
 	this->uiTable[uiNames.TOOLBAR_SCREEN] = toolbarScreen;
 	this->uiList.push_back(toolbarScreen);
 
-	/*ProfilerScreen* profilerScreen = new ProfilerScreen(uiNames.PROFILER_SCREEN);
+	ProfilerScreen* profilerScreen = new ProfilerScreen(uiNames.PROFILER_SCREEN);
 	this->uiTable[uiNames.PROFILER_SCREEN] = profilerScreen;
-	this->uiList.push_back(profilerScreen);*/
+	this->uiList.push_back(profilerScreen);
+
+	MaterialInspectorScreen* materialInspectorScreen = new MaterialInspectorScreen(uiNames.MATERIAL_INSPECTOR_SCREEN);
+	this->uiTable[uiNames.MATERIAL_INSPECTOR_SCREEN] = materialInspectorScreen;
+	this->uiList.push_back(materialInspectorScreen);
 	
 }
 

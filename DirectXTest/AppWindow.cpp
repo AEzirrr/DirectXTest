@@ -15,6 +15,8 @@
 #include "InspectorScreen.h"
 #include "HierarchyScreen.h"
 #include "ToolbarScreen.h"
+#include "ProfilerScreen.h"
+#include "MaterialInspectorScreen.h"
 
 __declspec(align(16)) struct constant {
 	Matrix4x4 m_world;
@@ -72,17 +74,23 @@ void AppWindow::onCreate()
 	////////// VERTEX SHADER INITIALIZATION //////////
 
 	// --- Inspector Setup ---
-	AUIScreen* inspector = UIManager::getInstance()->getScreen("INSPECTOR_SCREEN");
+	AUIScreen* inspector = UIManager::getInstance()->getScreen("Inspector");
 
 	// --- Hierarchy Setup ---
-	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("Hierarchy");
 
 	// --- Toolbar Setup ---
-	AUIScreen* toolbar = UIManager::getInstance()->getScreen("TOOLBAR_SCREEN");
+	AUIScreen* toolbar = UIManager::getInstance()->getScreen("Toolbar");
 	if (toolbar != nullptr) {
 		ToolbarScreen* customToolbar = static_cast<ToolbarScreen*>(toolbar);
 		customToolbar->setListener(this);
 	}
+
+	// --- Profiler Setup ---
+	AUIScreen* profiler = UIManager::getInstance()->getScreen("Profiler");
+
+	// --- Material Inspector Setup ---
+	AUIScreen* materialInspector = UIManager::getInstance()->getScreen("Material Inspector");
 
 
 	m_old_time = std::chrono::steady_clock::now(); // intialize th old time
@@ -298,7 +306,7 @@ void AppWindow::onCreateCubeClicked()
 
 	m_game_objects.push_back(newCube);
 
-	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("Hierarchy");
 	if (hierarchy != nullptr) {
 		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
 		customHierarchy->addObject(newCube);
@@ -330,7 +338,7 @@ void AppWindow::onCreateSphereClicked()
 	newSphere->setPosition(0.0f, 0.0f, 0.0f);
 	newSphere->setScale(1.0f, 1.0f, 1.0f);
 	m_game_objects.push_back(newSphere);
-	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("Hierarchy");
 	if (hierarchy != nullptr) {
 		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
 		customHierarchy->addObject(newSphere);
@@ -364,7 +372,7 @@ void AppWindow::onCreatePlaneClicked()
 
 	m_game_objects.push_back(newPlane);
 
-	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("Hierarchy");
 	if (hierarchy != nullptr) {
 		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
 		customHierarchy->addObject(newPlane);

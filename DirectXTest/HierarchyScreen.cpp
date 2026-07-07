@@ -29,7 +29,7 @@ void HierarchyScreen::drawUI()
 		{
 			m_selectedObject = m_objectList[i];
 
-			AUIScreen* inspector = UIManager::getInstance()->getScreen("INSPECTOR_SCREEN");
+			AUIScreen* inspector = UIManager::getInstance()->getScreen("Inspector");
 
 			if (inspector != nullptr)
 			{

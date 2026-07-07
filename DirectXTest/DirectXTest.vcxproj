@@ -40,8 +40,10 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="InspectorScreen.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MaterialInspectorScreen.cpp" />
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="ProfilerScreen.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="SceneCameraHandler.cpp" />
     <ClCompile Include="Sphere.cpp" />
@@ -76,10 +78,12 @@
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="InspectorScreen.h" />
+    <ClInclude Include="MaterialInspectorScreen.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="ProfilerScreen.h" />
     <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="SceneCameraHandler.h" />
     <ClInclude Include="SpawnSphereCommand.h" />
