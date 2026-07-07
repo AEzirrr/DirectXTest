@@ -2,6 +2,19 @@
 #include <Windows.h>
 #include "Matrix4x4.h"
 #include "InputSystem.h"
+#include "CommandSystem.h"
+#include "SpawnSphereCommand.h"
+#include "TransformCubeCommand.h"
+#include <chrono>
+#include <iostream>
+#include "Camera.h"
+#include "SceneCameraHandler.h"
+
+//ImGui includes and screens
+#include "UIManager.h"
+#include "InspectorScreen.h"
+#include "HierarchyScreen.h"
+#include "ToolbarScreen.h"
 
 __declspec(align(16)) struct constant {
 	Matrix4x4 m_world;
@@ -27,11 +40,16 @@ void AppWindow::update()
 
 void AppWindow::onCreate()
 {
+	SceneCameraHandler::initialize();
 	InputSystem::getInstance()->addListener(this);
-	InputSystem::getInstance()->showCursor(false);
+	InputSystem::getInstance()->showCursor(true);
 
 	GraphicsEngine::getInstance()->init();
 	m_swap_chain = GraphicsEngine::getInstance()->createSwapChain();
+
+
+	UIManager::getInstance()->initialize(this->m_hwnd);
+
 
 	RECT rc = this->getClientWindowRect();
 	m_swap_chain->init(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
@@ -40,34 +58,47 @@ void AppWindow::onCreate()
 	rasterizerState->InitializeWireframe(GraphicsEngine::getInstance()->getDevice());
 
 	////////// VERTEX SHADER INITIALIZATION //////////
-	void* shader_byte_code = nullptr;
-	size_t size_shader = 0;
-	GraphicsEngine::getInstance()->compileVertexShader(L"VertexShader.hlsl", "vsmain", &shader_byte_code, &size_shader);
-	m_vertex_shader = GraphicsEngine::getInstance()->createVertexShader(shader_byte_code, size_shader);
+	void* temp_byte_code = nullptr;
+	size_t temp_size = 0;
+	GraphicsEngine::getInstance()->compileVertexShader(L"VertexShader.hlsl", "vsmain", &temp_byte_code, &temp_size);
+
+	// --- NEW: Make a permanent copy of the memory ---
+	m_size_shader = temp_size;
+	m_shader_byte_code = new unsigned char[m_size_shader];
+	memcpy(m_shader_byte_code, temp_byte_code, m_size_shader);
+	// ------------------------------------------------
+
+	m_vertex_shader = GraphicsEngine::getInstance()->createVertexShader(m_shader_byte_code, m_size_shader);
 	////////// VERTEX SHADER INITIALIZATION //////////
 
-	m_cube1 = new Cube("MainCube", shader_byte_code, size_shader);
-	m_cube2 = new Cube("SecondaryCube", shader_byte_code, size_shader);
-	m_plane = new Plane("GroundPlane", shader_byte_code, size_shader);
+	// --- Inspector Setup ---
+	AUIScreen* inspector = UIManager::getInstance()->getScreen("INSPECTOR_SCREEN");
 
-	m_cube1->setPosition(-1.0f, 0.0f, 0.0f);
-	m_cube2->setPosition(1.0f, 0.0f, 0.0f);
-	m_plane->setPosition(0.0f, 0.0f, 0.0f);
+	// --- Hierarchy Setup ---
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
 
-	m_cube1->setScale(0.5f, 0.5f, 0.5f);
-	m_cube2->setScale(0.5f, 0.5f, 0.5f);
-	m_plane->setScale(5.0f, 1.0f, 5.0f);
+	// --- Toolbar Setup ---
+	AUIScreen* toolbar = UIManager::getInstance()->getScreen("TOOLBAR_SCREEN");
+	if (toolbar != nullptr) {
+		ToolbarScreen* customToolbar = static_cast<ToolbarScreen*>(toolbar);
+		customToolbar->setListener(this);
+	}
 
-	GraphicsEngine::getInstance()->releaseCompiledShader();
+
+	m_old_time = std::chrono::steady_clock::now(); // intialize th old time
+
+	//GraphicsEngine::getInstance()->releaseCompiledShader();
 
 	////////// PIXEL SHADER INITIALIZATION //////////
-	GraphicsEngine::getInstance()->compilePixelShader(L"PixelShader.hlsl", "psmain", &shader_byte_code, &size_shader);
-	m_pixel_shader = GraphicsEngine::getInstance()->createPixelShader(shader_byte_code, size_shader);
+	void* pixel_shader_byte_code = nullptr;
+	size_t pixel_size_shader = 0;
+	GraphicsEngine::getInstance()->compilePixelShader(L"PixelShader.hlsl", "psmain", &pixel_shader_byte_code, &pixel_size_shader);
+	m_pixel_shader = GraphicsEngine::getInstance()->createPixelShader(pixel_shader_byte_code, pixel_size_shader);
 	GraphicsEngine::getInstance()->releaseCompiledShader();
 	///////// PIXEL SHADER INITIALIZATION //////////
 
 	constant cc;
-	cc.m_view = m_view_matrix;
+	cc.m_view = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
 	cc.m_projection = m_projection_matrix;
 	cc.m_time = 0;
 
@@ -78,96 +109,72 @@ void AppWindow::onCreate()
 void AppWindow::onUpdate()
 {
 	InputSystem::getInstance()->update();
-
+	CommandSystem::getInstance()->processQueue();
 	constant cc;
 
-	// Calculate Delta Time
-	current_time = GetTickCount();
-	deltaTime = (m_old_time > 0) ? (current_time - m_old_time) / 1000.0f : 0.0f;
+
+	// IMPROVED FRAME TIMING
+	auto current_time = std::chrono::steady_clock::now();
+	std::chrono::duration<float> elapsed = current_time - m_old_time;
+
+	deltaTime = elapsed.count();
+
 	m_old_time = current_time;
 
-	GraphicsEngine::getInstance()->getImmediateDeviceContext()->clearRenderTargetColor(this->m_swap_chain, .3f, 0.3f, 0.3f, 1.0f);
+	GraphicsEngine::getInstance()->getImmediateDeviceContext()->clearRenderTargetColor(this->m_swap_chain, 0.1f, 0.1f, 0.1f, 1.0f);
 
 	RECT rc = this->getClientWindowRect();
 	int width = rc.right - rc.left;
 	int height = rc.bottom - rc.top;
 	GraphicsEngine::getInstance()->getImmediateDeviceContext()->setViewportSize(width, height);
 
-	rot_x += m_key_rot_speed_x * deltaTime;
-	rot_y += m_key_rot_speed_y * deltaTime;
+	SceneCameraHandler::getInstance()->update(deltaTime);
+	cc.m_view = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+	cc.m_projection.setPerspectiveFovLH(1.04f, (float)width / (float)height, 0.5f, 1000.0f);
 
-	Matrix4x4 worldCamera;
-	Matrix4x4 temp;
-
-	worldCamera.setIdentity();
-
-	temp.setIdentity();
-	temp.setRotationX(rot_x);
-	worldCamera *= temp;
-
-	temp.setIdentity();
-	temp.setRotationY(rot_y);
-	worldCamera *= temp;
-
-	Vector3D forward = worldCamera.getZDirection();
-	Vector3D right = worldCamera.getXDirection();
-
-	m_cam_pos = m_cam_pos + (forward * (m_key_move_z * deltaTime));
-	m_cam_pos = m_cam_pos + (right * (m_key_move_x * deltaTime));
-
-	temp.setIdentity();
-	temp.setTranslation(m_cam_pos);
-	worldCamera *= temp;
-
-	worldCamera.inverse();
-	m_view_matrix = worldCamera;
-	cc.m_view = m_view_matrix;
-
-	cc.m_projection.setPerspectiveFovLH(1.57f, (float)width / (float)height, 0.1f, 1000.0f);
-
-	if (m_cube1)
+	for (int i = 0; i < m_game_objects.size(); i++)
 	{
-		m_cube1->update(deltaTime);
-		m_cube2->update(deltaTime);
-
-		m_cube1->draw(m_view_matrix, cc.m_projection, m_vertex_shader, m_pixel_shader);
-		m_cube2->draw(m_view_matrix, cc.m_projection, m_vertex_shader, m_pixel_shader);
+		m_game_objects[i]->update(deltaTime);
+		m_game_objects[i]->draw(cc.m_projection, m_vertex_shader, m_pixel_shader);
 	}
 
-	if (m_plane) {
-		m_plane->update(deltaTime);
-		m_plane->draw(m_view_matrix, cc.m_projection, m_vertex_shader, m_pixel_shader);
-	}
+	UIManager::getInstance()->drawAllUI();
 
 	m_swap_chain->present(false);
 }
 
 void AppWindow::onDestroy()
 {
-	rasterizerState->release();
+	if (m_shader_byte_code) {
+		delete[](unsigned char*)m_shader_byte_code;
+		m_shader_byte_code = nullptr;
+	}
 
+	rasterizerState->release();
 	m_swap_chain->release();
+
+	SceneCameraHandler::destroy();
 
 	if (m_vertex_buffer) m_vertex_buffer->release();
 	if (m_index_buffer) m_index_buffer->release();
 
-	if (m_cube1) {
-		delete m_cube1;
-		m_cube1 = nullptr;
-	}
-
-	if (m_cube2) {
-		delete m_cube2;
-		m_cube2 = nullptr;
-	}
-
-	if (m_plane) {
-		delete m_plane;
-		m_plane = nullptr;
+	if (m_game_objects.size() > 0) {
+		for (int i = 0; i < m_game_objects.size(); i++) {
+			if (m_game_objects[i]) {
+				delete m_game_objects[i];
+				m_game_objects[i] = nullptr;
+			}
+		}
+		m_game_objects.clear();
 	}
 
 	m_vertex_shader->release();
 	m_pixel_shader->release();
+
+	UIManager::getInstance()->destroy();
+
+	GraphicsEngine::getInstance()->releaseCompiledShader();
+
 	GraphicsEngine::getInstance()->release();
 }
 
@@ -183,69 +190,183 @@ void AppWindow::onKillFocus()
 
 void AppWindow::onKeyDown(int key)
 {
-	if (key == 'W') { m_key_move_z = 2.0f; }
-	if (key == 'S') { m_key_move_z = -2.0f; }
-	if (key == 'A') { m_key_move_x = -2.0f; }
-	if (key == 'D') { m_key_move_x = 2.0f; }
+	if (key == 'W') {
+		cube_rotx += 0.001f;
+	}
 
-	if (key == 'Q') {
+	if (key == 'S') {
+		cube_roty += 0.001f;
+	}
+
+	if (key == 'O') {
 		GraphicsEngine::getInstance()->getImmediateDeviceContext()->setRasterizerState(rasterizerState);
 	}
-	if (key == 'E') {
+	if (key == 'P') {
 		GraphicsEngine::getInstance()->getImmediateDeviceContext()->clearRasterizerState(rasterizerState);
+	}
+
+	if (key == VK_ESCAPE) { // Exit the application when escape is pressed
+		this->m_is_running = false;
 	}
 }
 
 void AppWindow::onKeyUp(int key)
 {
-	if (key == 'W' || key == 'S') { m_key_move_z = 0.0f; }
-	if (key == 'A' || key == 'D') { m_key_move_x = 0.0f; }
+	if (key == 'W') { cube_rotx = 0; }
+
+	if (key == 'S') { cube_roty = 0; }
+
+	if (key == VK_SPACE) {
+
+	}
+
+	if (key == VK_BACK) {
+		CommandSystem::getInstance()->undo(); // Remove the recently spawned sphere command using undo 
+		
+	}
+
+	if (key == VK_DELETE) {
+
+	}
+	
+
+	bool isCtrlHeld = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
+
+	if (isCtrlHeld && key == 'Z') { // Undo last command
+		CommandSystem::getInstance()->undo();
+	}
+
+	if (isCtrlHeld && key == 'Y') { // Redo last command
+		CommandSystem::getInstance()->redo();
+	}
 }
 
 void AppWindow::onMouseMove(const Point& mouse_pos)
 {
-	RECT rc = this->getClientWindowRect();
-	int width = rc.right - rc.left;
-	int height = rc.bottom - rc.top;
-
-	int center_x = width / 2;
-	int center_y = height / 2;
-
-	POINT center_screen = { center_x, center_y };
-	::ClientToScreen(this->m_hwnd, &center_screen);
-
-	float delta_x = mouse_pos.m_x - center_screen.x;
-	float delta_y = mouse_pos.m_y - center_screen.y;
-
-	if (delta_x == 0.0f && delta_y == 0.0f) return;
-
-	const float MOUSE_SENSITIVITY = 0.005f;
-
-	rot_x -= delta_y * MOUSE_SENSITIVITY;
-	rot_y -= delta_x * MOUSE_SENSITIVITY;
-
-	if (rot_x > 1.57f) rot_x = 1.57f;
-	if (rot_x < -1.57f) rot_x = -1.57f;
-
-	InputSystem::getInstance()->setCursorPosition(Point(center_screen.x, center_screen.y));
 }
 
 void AppWindow::onLeftMouseDown(const Point& mouse_pos)
 {
-	m_scale_cube += 0.1f;
-	m_cube1->setScale(m_scale_cube, m_scale_cube, m_scale_cube);
-	m_cube2->setScale(m_scale_cube, m_scale_cube, m_scale_cube);
+
 }
 
 void AppWindow::onLeftMouseUp(const Point& mouse_pos)
-{}
+{
+
+}
 
 void AppWindow::onRightMouseDown(const Point& mouse_pos)
 {
-	m_scale_cube -= 0.1f;
-	m_cube1->setScale(m_scale_cube, m_scale_cube, m_scale_cube);
-	m_cube2->setScale(m_scale_cube, m_scale_cube, m_scale_cube);
+	
 }
 
 void AppWindow::onRightMouseUp(const Point& mouse_pos)
-{}
+{
+
+}
+
+void AppWindow::onMouseWheel(int delta)
+{
+
+}
+
+void AppWindow::onCreateCubeClicked()
+{
+	int counter = m_game_objects.size() + 1;
+	std::string cubeName = "Cube_" + std::to_string(counter);
+
+	bool nameExists = true;
+	while (nameExists)
+	{
+		nameExists = false;
+		for (const auto& obj : m_game_objects)
+		{
+			// Adjust "getName()" to your actual property/method for the object's name
+			if (obj->getName() == cubeName)
+			{
+				nameExists = true;
+				counter++;
+				cubeName = "Cube_" + std::to_string(counter);
+				break;
+			}
+		}
+	}
+
+	Cube* newCube = new Cube(	cubeName, m_shader_byte_code, m_size_shader);
+	newCube->setPosition(0.0f, 0.0f, 0.0f);
+	newCube->setScale(0.5f, 0.5f, 0.5f);
+
+	m_game_objects.push_back(newCube);
+
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
+	if (hierarchy != nullptr) {
+		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
+		customHierarchy->addObject(newCube);
+	}
+}
+
+void AppWindow::onCreateSphereClicked()
+{
+	int counter = m_game_objects.size() + 1;
+	std::string sphereName = "Sphere_" + std::to_string(counter);
+
+	bool nameExists = true;
+	while (nameExists)
+	{
+		nameExists = false;
+		for (const auto& obj : m_game_objects)
+		{
+			if (obj->getName() == sphereName)
+			{
+				nameExists = true;
+				counter++;
+				sphereName = "Sphere_" + std::to_string(counter);
+				break;
+			}
+		}
+	}
+
+	Sphere* newSphere = new Sphere(sphereName, m_shader_byte_code, m_size_shader);
+	newSphere->setPosition(0.0f, 0.0f, 0.0f);
+	newSphere->setScale(1.0f, 1.0f, 1.0f);
+	m_game_objects.push_back(newSphere);
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
+	if (hierarchy != nullptr) {
+		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
+		customHierarchy->addObject(newSphere);
+	}
+}
+
+void AppWindow::onCreatePlaneClicked()
+{
+	int counter = m_game_objects.size() + 1;
+	std::string planeName = "Plane_" + std::to_string(counter);
+
+	bool nameExists = true;
+	while (nameExists)
+	{
+		nameExists = false;
+		for (const auto& obj : m_game_objects)
+		{
+			if (obj->getName() == planeName)
+			{
+				nameExists = true;
+				counter++;
+				planeName = "Plane_" + std::to_string(counter);
+				break;
+			}
+		}
+	}
+
+	Plane* newPlane = new Plane(planeName, m_shader_byte_code, m_size_shader);
+	newPlane->setPosition(0.0f, 0.0f, 0.0f);
+	newPlane->setScale(2.0f, 1.0f, 2.0f);
+
+	m_game_objects.push_back(newPlane);
+
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("HIERARCHY_SCREEN");
+	if (hierarchy != nullptr) {
+		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
+		customHierarchy->addObject(newPlane);
+	}
+}

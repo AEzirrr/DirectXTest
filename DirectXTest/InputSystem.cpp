@@ -114,3 +114,13 @@ InputSystem* InputSystem::getInstance()
 	static InputSystem instance;
 	return &instance;
 }
+
+void InputSystem::onMouseWheel(int delta)
+{
+	std::map<InputListener*, InputListener*>::iterator it = m_listeners.begin();
+	while (it != m_listeners.end())
+	{
+		it->second->onMouseWheel(delta);
+		++it;
+	}
+}

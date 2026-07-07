@@ -1,7 +1,11 @@
 #include "Window.h"
 #include <Windows.h>
+#include "InputSystem.h" 
+#include "imgui.h"
 
 //Window* window = nullptr;
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 Window::Window()
 {
@@ -9,6 +13,9 @@ Window::Window()
 }
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
+		return true;
+	
 	switch (msg)
 	{
 	case WM_CREATE:
@@ -38,6 +45,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		window->onDestroy();
 		PostQuitMessage(0);
+		break;
+	}
+	case WM_MOUSEWHEEL:
+	{
+		int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+		InputSystem::getInstance()->onMouseWheel(delta);
 		break;
 	}
 		
@@ -102,7 +115,7 @@ bool Window::init()
 	if(!::RegisterClassEx(&wc))
 		return false;
 
-	m_hwnd = ::CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, TEXT("MyWindowClass"), TEXT("DirectX Application"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, NULL, NULL, NULL, this);
+	m_hwnd = ::CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, TEXT("MyWindowClass"), TEXT("DirectX Application"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1440, 900, NULL, NULL, NULL, this);
 
 	if (!m_hwnd)
 		return false;

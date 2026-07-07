@@ -11,10 +11,17 @@ public:
 	~Cube();
 
 	virtual void update(float deltaTime) override;
-	virtual void draw(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader) override;
+	virtual void draw(Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader) override;
+
+	void setDirection(const Vector3D& dir) { m_cube_direction = dir; }
+	Vector3D getDirection() const { return m_cube_direction; }
 
 private:
 	VertexBuffer* m_vertex_buffer;
 	IndexBuffer* m_index_buffer;
 	ConstantBuffer* m_constant_buffer;
+
+	Vector3D m_cube_direction;
+
+	float m_total_time = 0.0f;
 };

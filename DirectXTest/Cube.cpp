@@ -2,12 +2,13 @@
 #include "GraphicsEngine.h"
 #include "DeviceContext.h"
 #include <Windows.h>
+#include "SceneCameraHandler.h"
 
 __declspec(align(16)) struct cube_constant {
 	Matrix4x4 m_world;
 	Matrix4x4 m_view;
 	Matrix4x4 m_projection;
-	unsigned int m_time;
+	float m_time;
 	Vector3D m_color;
 };
 
@@ -18,7 +19,7 @@ struct cube_vertex {
 
 Cube::Cube(std::string name, void* shader_byte_code, size_t size_shader) : AGameObject(name)
 {
-	// Local vertex configuration for a 3D Cube
+	//Rainbow
 	cube_vertex vertex_list[] =
 	{
 		//Front
@@ -34,13 +35,29 @@ Cube::Cube(std::string name, void* shader_byte_code, size_t size_shader) : AGame
 		{Vector3D(-0.5f, -0.5f, 0.5f), Vector3D(0, 1, 1)},
 	};
 
+	/* //White
+	cube_vertex vertex_list[] =
+	{
+		//Front
+		{Vector3D(-0.5f, -0.5f, -0.5f), Vector3D(1, 1, 1)},
+		{Vector3D(-0.5f, 0.5f, -0.5f), Vector3D(1, 1, 1)},
+		{Vector3D(0.5f, 0.5f, -0.5f), Vector3D(1, 1, 1)},
+		{Vector3D(0.5f, -0.5f, -0.5f), Vector3D(1, 1, 1)},
+
+		//Back
+		{Vector3D(0.5f, -0.5f, 0.5f), Vector3D(1, 1, 1)},
+		{Vector3D(0.5f, 0.5f, 0.5f), Vector3D(1, 1, 1)},
+		{Vector3D(-0.5f, 0.5f, 0.5f), Vector3D(1, 1, 1)},
+		{Vector3D(-0.5f, -0.5f, 0.5f), Vector3D(1, 1, 1)},
+	}; */
+
 	unsigned int index_list[] = {
-		0, 1, 2, 2, 3, 0, // Front face
-		4, 5, 6, 6, 7, 4, // Back face
-		1, 6, 5, 5, 2, 1, // Left face
-		7, 0, 3, 3, 4, 7, // Right face
-		3, 2, 5, 5, 4, 3, // Top face
-		7, 6, 1, 1, 0, 7  // Bottom face
+		0, 1, 2, 2, 3, 0,
+		4, 5, 6, 6, 7, 4, 
+		1, 6, 5, 5, 2, 1, 
+		7, 0, 3, 3, 4, 7, 
+		3, 2, 5, 5, 4, 3,
+		7, 6, 1, 1, 0, 7 
 	};
 
 	// Initialize Buffers
@@ -66,6 +83,11 @@ Cube::~Cube()
 void Cube::update(float deltaTime)
 {
 	Matrix4x4 rotx, roty, rotz, scale_mat, translation_mat;
+	cube_constant cc;
+
+	m_total_time += deltaTime;
+	cc.m_time = m_total_time;
+
 
 	rotx.setRotationX(m_rotation.x);
 	roty.setRotationY(m_rotation.y);
@@ -75,7 +97,6 @@ void Cube::update(float deltaTime)
 
 	m_world_matrix.setIdentity();
 
-	// CORRECT ORDER: Scale -> Rotate -> Translate
 	m_world_matrix *= scale_mat;
 	m_world_matrix *= rotx;
 	m_world_matrix *= roty;
@@ -83,12 +104,11 @@ void Cube::update(float deltaTime)
 	m_world_matrix *= translation_mat;
 }
 
-void Cube::draw(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader)
+void Cube::draw(Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader)
 {
 	cube_constant cc;
-	cc.m_time = GetTickCount();
 	cc.m_world = m_world_matrix;
-	cc.m_view = viewMatrix;
+	cc.m_view = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
 	cc.m_projection = projectionMatrix;
 	cc.m_color = Vector3D(1.0f, 1.0f, 1.0f);
 
