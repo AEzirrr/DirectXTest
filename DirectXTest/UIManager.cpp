@@ -41,6 +41,29 @@ void UIManager::drawAllUI()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
+	// 1. Setup full screen viewport bounds
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->WorkPos);
+	ImGui::SetNextWindowSize(viewport->WorkSize);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	// 2. The critical flag here is ImGuiWindowFlags_NoBackground
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
+		ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("MasterDockSpaceWindow", nullptr, window_flags);
+	ImGui::PopStyleVar();
+
+	// 3. Create the DockSpace
+	ImGuiID dockspace_id = ImGui::GetID("MyEngineDockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode); // <-- Added Passthru flag
+
+	ImGui::End();
+
+	// 4. Draw your actual panels (Inspector, Hierarchy, etc.)
 	for (int i = 0; i < uiList.size(); i++)
 	{
 		uiList[i]->drawUI();
@@ -64,6 +87,9 @@ UIManager::UIManager(HWND windowHandle)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplWin32_Init(windowHandle);

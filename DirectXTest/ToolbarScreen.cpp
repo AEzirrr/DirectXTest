@@ -33,6 +33,9 @@ void ToolbarScreen::drawUI()
 			if (ImGui::MenuItem("Create Plane")) {
 				if (m_listener != nullptr) m_listener->onCreatePlaneClicked();
 			}
+			if (ImGui::MenuItem("Create Cylinder")) {
+				if (m_listener != nullptr) m_listener->onCreateCylinderClicked();
+			}
 
 
 			ImGui::EndMenu();

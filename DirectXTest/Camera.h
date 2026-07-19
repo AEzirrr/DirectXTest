@@ -11,7 +11,7 @@ public:
 	~Camera();
 
 	void update(float deltaTime) override;
-	virtual void draw(Matrix4x4 projectionMatrix, class VertexShader* vertexShader, class PixelShader* pixelShader) override;
+	virtual void draw(Matrix4x4 projectionMatrix) override;
 	void updateViewMatrix();
 	Matrix4x4 getViewMatrix();
 

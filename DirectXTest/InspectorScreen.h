@@ -12,6 +12,7 @@ public:
 	void drawUI() override;
 
 	void selectObject(AGameObject* object);
+	AGameObject* getSelectedObject() const { return selectedObject; }
 
 private:
 	AGameObject* selectedObject = nullptr;

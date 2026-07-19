@@ -30,8 +30,8 @@ public:
 	void clearRasterizerState(RasterizerState* rasterizer_state); // method for clearing the rasterizer state from the device context
 
 public:
-	void setConstantBuffer(VertexShader* vertex_shader, ConstantBuffer* constant_buffer);
-	void setConstantBuffer(PixelShader* pixel_shader, ConstantBuffer* constant_buffer);
+	void setConstantBuffer(VertexShader* vertex_shader, ConstantBuffer* constant_buffer, unsigned int slot = 0);
+	void setConstantBuffer(PixelShader* pixel_shader, ConstantBuffer* constant_buffer, unsigned int slot = 0);
 
 public:
 	void setIndexBuffer(IndexBuffer* index_buffer);

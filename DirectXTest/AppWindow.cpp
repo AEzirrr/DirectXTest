@@ -9,7 +9,7 @@
 #include <iostream>
 #include "Camera.h"
 #include "SceneCameraHandler.h"
-
+#include "Material.h"
 //ImGui includes and screens
 #include "UIManager.h"
 #include "InspectorScreen.h"
@@ -17,6 +17,8 @@
 #include "ToolbarScreen.h"
 #include "ProfilerScreen.h"
 #include "MaterialInspectorScreen.h"
+#include "ShaderLibrary.h"
+#include "ShaderNames.h"
 
 __declspec(align(16)) struct constant {
 	Matrix4x4 m_world;
@@ -49,7 +51,6 @@ void AppWindow::onCreate()
 	GraphicsEngine::getInstance()->init();
 	m_swap_chain = GraphicsEngine::getInstance()->createSwapChain();
 
-
 	UIManager::getInstance()->initialize(this->m_hwnd);
 
 
@@ -58,20 +59,6 @@ void AppWindow::onCreate()
 
 	rasterizerState = new RasterizerState();
 	rasterizerState->InitializeWireframe(GraphicsEngine::getInstance()->getDevice());
-
-	////////// VERTEX SHADER INITIALIZATION //////////
-	void* temp_byte_code = nullptr;
-	size_t temp_size = 0;
-	GraphicsEngine::getInstance()->compileVertexShader(L"VertexShader.hlsl", "vsmain", &temp_byte_code, &temp_size);
-
-	// --- NEW: Make a permanent copy of the memory ---
-	m_size_shader = temp_size;
-	m_shader_byte_code = new unsigned char[m_size_shader];
-	memcpy(m_shader_byte_code, temp_byte_code, m_size_shader);
-	// ------------------------------------------------
-
-	m_vertex_shader = GraphicsEngine::getInstance()->createVertexShader(m_shader_byte_code, m_size_shader);
-	////////// VERTEX SHADER INITIALIZATION //////////
 
 	// --- Inspector Setup ---
 	AUIScreen* inspector = UIManager::getInstance()->getScreen("Inspector");
@@ -95,15 +82,11 @@ void AppWindow::onCreate()
 
 	m_old_time = std::chrono::steady_clock::now(); // intialize th old time
 
-	//GraphicsEngine::getInstance()->releaseCompiledShader();
+	ShaderLibrary::initialize();
 
-	////////// PIXEL SHADER INITIALIZATION //////////
-	void* pixel_shader_byte_code = nullptr;
-	size_t pixel_size_shader = 0;
-	GraphicsEngine::getInstance()->compilePixelShader(L"PixelShader.hlsl", "psmain", &pixel_shader_byte_code, &pixel_size_shader);
-	m_pixel_shader = GraphicsEngine::getInstance()->createPixelShader(pixel_shader_byte_code, pixel_size_shader);
-	GraphicsEngine::getInstance()->releaseCompiledShader();
-	///////// PIXEL SHADER INITIALIZATION //////////
+	ShaderNames shaderNames;
+	ShaderLibrary::getInstance()->requestVertexShaderData(
+		shaderNames.BASE_VERTEX_SHADER_NAME, &m_shader_byte_code, &m_size_shader);
 
 	constant cc;
 	cc.m_view = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
@@ -143,7 +126,7 @@ void AppWindow::onUpdate()
 	for (int i = 0; i < m_game_objects.size(); i++)
 	{
 		m_game_objects[i]->update(deltaTime);
-		m_game_objects[i]->draw(cc.m_projection, m_vertex_shader, m_pixel_shader);
+		m_game_objects[i]->draw(cc.m_projection);
 	}
 
 	UIManager::getInstance()->drawAllUI();
@@ -176,10 +159,9 @@ void AppWindow::onDestroy()
 		m_game_objects.clear();
 	}
 
-	m_vertex_shader->release();
-	m_pixel_shader->release();
-
 	UIManager::getInstance()->destroy();
+
+	ShaderLibrary::destroy();
 
 	GraphicsEngine::getInstance()->releaseCompiledShader();
 
@@ -198,13 +180,6 @@ void AppWindow::onKillFocus()
 
 void AppWindow::onKeyDown(int key)
 {
-	if (key == 'W') {
-		cube_rotx += 0.001f;
-	}
-
-	if (key == 'S') {
-		cube_roty += 0.001f;
-	}
 
 	if (key == 'O') {
 		GraphicsEngine::getInstance()->getImmediateDeviceContext()->setRasterizerState(rasterizerState);
@@ -220,9 +195,6 @@ void AppWindow::onKeyDown(int key)
 
 void AppWindow::onKeyUp(int key)
 {
-	if (key == 'W') { cube_rotx = 0; }
-
-	if (key == 'S') { cube_roty = 0; }
 
 	if (key == VK_SPACE) {
 
@@ -376,5 +348,39 @@ void AppWindow::onCreatePlaneClicked()
 	if (hierarchy != nullptr) {
 		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
 		customHierarchy->addObject(newPlane);
+	}
+}
+
+void AppWindow::onCreateCylinderClicked()
+{
+	int counter = m_game_objects.size() + 1;
+	std::string cylinderName = "Cylinder_" + std::to_string(counter);
+
+	bool nameExists = true;
+	while (nameExists)
+	{
+		nameExists = false;
+		for (const auto& obj : m_game_objects)
+		{
+			if (obj->getName() == cylinderName)
+			{
+				nameExists = true;
+				counter++;
+				cylinderName = "Cylinder_" + std::to_string(counter);
+				break;
+			}
+		}
+	}
+
+	Cylinder* newCylinder = new Cylinder(cylinderName, m_shader_byte_code, m_size_shader);
+	newCylinder->setPosition(0.0f, 0.0f, 0.0f);
+	newCylinder->setScale(1.0f, 1.0f, 1.0f);
+
+	m_game_objects.push_back(newCylinder);
+
+	AUIScreen* hierarchy = UIManager::getInstance()->getScreen("Hierarchy");
+	if (hierarchy != nullptr) {
+		HierarchyScreen* customHierarchy = static_cast<HierarchyScreen*>(hierarchy);
+		customHierarchy->addObject(newCylinder);
 	}
 }

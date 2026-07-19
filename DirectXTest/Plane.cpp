@@ -3,62 +3,89 @@
 #include "DeviceContext.h"
 #include <Windows.h>
 #include "SceneCameraHandler.h"
+#include "Material.h"
+#include "Vector2D.h"
+#include "ShaderNames.h"
+#include "ShaderLibrary.h"
 
-__declspec(align(16)) struct plane_constant {
+__declspec(align(16)) struct TransformConstantData {
 	Matrix4x4 m_world;
 	Matrix4x4 m_view;
 	Matrix4x4 m_projection;
-	unsigned int m_time;
-	Vector3D m_color;
+	float m_time;
+	Vector3D m_padding;
+	Vector3D m_cameraWorldPos;
 };
 
 struct plane_vertex {
 	Vector3D position;
-	Vector3D color;
+	Vector2D texCoord;
+	Vector3D normal;
 };
 
 Plane::Plane(std::string name, void* shader_byte_code, size_t size_shader) : AGameObject(name)
 {
 	plane_vertex vertex_list[] =
 	{
-		{Vector3D(-0.5f, 0.0f, -0.5f), Vector3D(0.18f, 0.18f, 0.18f)},
-		{Vector3D(-0.5f, 0.0f,  0.5f), Vector3D(0.18f, 0.18f, 0.18f)}, 
-		{Vector3D(0.5f, 0.0f,  0.5f), Vector3D(0.18f, 0.18f, 0.18f)}, 
-		{Vector3D(0.5f, 0.0f, -0.5f), Vector3D(0.18f, 0.18f, 0.18f)}  
+		// Position, TexCoord, Normal (pointing up)
+		{ Vector3D(-0.5f, 0.0f, -0.5f), Vector2D(0.0f, 0.0f), Vector3D(0.0f, 1.0f, 0.0f) },
+		{ Vector3D(-0.5f, 0.0f,  0.5f), Vector2D(0.0f, 1.0f), Vector3D(0.0f, 1.0f, 0.0f) },
+		{ Vector3D(0.5f, 0.0f,  0.5f), Vector2D(1.0f, 1.0f), Vector3D(0.0f, 1.0f, 0.0f) },
+		{ Vector3D(0.5f, 0.0f, -0.5f), Vector2D(1.0f, 0.0f), Vector3D(0.0f, 1.0f, 0.0f) }
 	};
 
 	unsigned int index_list[] = {
 		0, 1, 2,
-		2, 3, 0 
+		2, 3, 0
 	};
 
 	m_vertex_buffer = GraphicsEngine::getInstance()->createVertexBuffer();
-	m_vertex_buffer->load(vertex_list, sizeof(plane_vertex), ARRAYSIZE(vertex_list), shader_byte_code, size_shader);
+	if (m_vertex_buffer) {
+		m_vertex_buffer->load(vertex_list, sizeof(plane_vertex), ARRAYSIZE(vertex_list), shader_byte_code, size_shader);
+	}
 
 	m_index_buffer = GraphicsEngine::getInstance()->createIndexBuffer();
-	m_index_buffer->load(index_list, ARRAYSIZE(index_list));
+	if (m_index_buffer) {
+		m_index_buffer->load(index_list, ARRAYSIZE(index_list));
+	}
 
-	plane_constant cc;
-	cc.m_time = 0;
+	TransformConstantData tcd;
+	tcd.m_time = 0;
+	tcd.m_padding = Vector3D(0, 0, 0);
+	tcd.m_cameraWorldPos = Vector3D(0, 0, 0);
 	m_constant_buffer = GraphicsEngine::getInstance()->createConstantBuffer();
-	m_constant_buffer->load(&cc, sizeof(plane_constant));
+	if (m_constant_buffer) {
+		m_constant_buffer->load(&tcd, sizeof(TransformConstantData));
+	}
+
+	// Create default material
+	m_assignedMaterial = new Material(name + "_Material");
+	if (m_assignedMaterial) {
+		m_assignedMaterial->setAlbedoColor(Vector4D(0.5f, 0.5f, 0.5f, 1.0f)); // Gray default
+	}
 }
 
 Plane::~Plane()
 {
-	m_vertex_buffer->release();
-	m_index_buffer->release();
-	m_constant_buffer->release();
+	if (m_vertex_buffer) {
+		m_vertex_buffer->release();
+		m_vertex_buffer = nullptr;
+	}
+	if (m_index_buffer) {
+		m_index_buffer->release();
+		m_index_buffer = nullptr;
+	}
+	if (m_constant_buffer) {
+		m_constant_buffer->release();
+		m_constant_buffer = nullptr;
+	}
 }
 
 void Plane::update(float deltaTime)
 {
 	Matrix4x4 rotx, roty, rotz, scale_mat, translation_mat;
-	plane_constant cc;
 
 	m_total_time += deltaTime;
-
-	cc.m_time = m_total_time;
 
 	rotx.setRotationX(m_rotation.x);
 	roty.setRotationY(m_rotation.y);
@@ -76,24 +103,35 @@ void Plane::update(float deltaTime)
 	m_world_matrix *= translation_mat;
 }
 
-void Plane::draw(Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader)
+void Plane::draw(Matrix4x4 projectionMatrix)
 {
-	plane_constant cc;
-	cc.m_world = m_world_matrix;
-	cc.m_view = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
-	cc.m_projection = projectionMatrix;
-	cc.m_color = Vector3D(1.0f, 1.0f, 1.0f);
-
 	auto deviceContext = GraphicsEngine::getInstance()->getImmediateDeviceContext();
+	if (!deviceContext) return;
 
-	m_constant_buffer->update(deviceContext, &cc);
+	ShaderNames shaderNames;
+	VertexShader* vertexShader = ShaderLibrary::getInstance()->getVertexShader(shaderNames.BASE_VERTEX_SHADER_NAME);
+	PixelShader* pixelShader = ShaderLibrary::getInstance()->getPixelShader(shaderNames.BASE_PIXEL_SHADER_NAME);
 
+	TransformConstantData tcd;
+	tcd.m_world = m_world_matrix;
+	tcd.m_view = SceneCameraHandler::getInstance()->getSceneCameraViewMatrix();
+	tcd.m_projection = projectionMatrix;
+	tcd.m_time = m_total_time;
+	tcd.m_padding = Vector3D(0, 0, 0);
+
+	auto camera = SceneCameraHandler::getInstance()->getCamera();
+	tcd.m_cameraWorldPos = camera ? camera->getLocalPosition() : Vector3D(0, 0, 0);
+
+	m_constant_buffer->update(deviceContext, &tcd);
 	deviceContext->setConstantBuffer(vertexShader, m_constant_buffer);
 	deviceContext->setConstantBuffer(pixelShader, m_constant_buffer);
 
+	if (m_assignedMaterial) {
+		m_assignedMaterial->bind(deviceContext, pixelShader);
+	}
+
 	deviceContext->setVertexShader(vertexShader);
 	deviceContext->setPixelShader(pixelShader);
-
 	deviceContext->setIndexBuffer(m_index_buffer);
 	deviceContext->setVertexBuffer(m_vertex_buffer);
 

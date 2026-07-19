@@ -4,6 +4,7 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 
+
 class Cube : public AGameObject
 {
 public:
@@ -11,7 +12,7 @@ public:
 	~Cube();
 
 	virtual void update(float deltaTime) override;
-	virtual void draw(Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader) override;
+	virtual void draw(Matrix4x4 projectionMatrix) override;
 
 	void setDirection(const Vector3D& dir) { m_cube_direction = dir; }
 	Vector3D getDirection() const { return m_cube_direction; }

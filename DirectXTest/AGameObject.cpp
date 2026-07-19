@@ -1,4 +1,5 @@
 #include "AGameObject.h"
+#include "Material.h"
 
 AGameObject::AGameObject(std::string name)
 {
@@ -6,9 +7,17 @@ AGameObject::AGameObject(std::string name)
 	m_position = Vector3D::zeros();
 	m_scale = Vector3D::ones();
 	m_rotation = Vector3D::zeros();
+
+	m_assignedMaterial = nullptr;
 }
 
-AGameObject::~AGameObject() {}
+AGameObject::~AGameObject()
+{
+	if (m_assignedMaterial) {
+		delete m_assignedMaterial;
+		m_assignedMaterial = nullptr;
+	}
+}
 
 std::string AGameObject::setName(std::string name)
 {
@@ -63,4 +72,13 @@ void AGameObject::setRotation(Vector3D rot)
 Vector3D AGameObject::getLocalRotation() 
 { 
 	return m_rotation; 
+}
+
+Material* AGameObject::getAssignedMaterial()
+{
+	if (m_assignedMaterial == nullptr)
+	{
+		m_assignedMaterial = new Material(m_name + "_Material");
+	}
+	return m_assignedMaterial;
 }

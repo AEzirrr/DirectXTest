@@ -14,6 +14,7 @@
 #include "Cube.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Cylinder.h" 
 #include <chrono>
 #include <vector>
 #include "Camera.h"
@@ -46,6 +47,7 @@ public:
 	void onCreateCubeClicked() override;
 	void onCreateSphereClicked() override;
 	void onCreatePlaneClicked() override;
+	void onCreateCylinderClicked() override;
 
 private:
 	RasterizerState* rasterizerState;
@@ -53,20 +55,7 @@ private:
 	SwapChain* m_swap_chain;
 	VertexBuffer* m_vertex_buffer;
 	IndexBuffer* m_index_buffer;
-
-	VertexShader* m_vertex_shader;
-	PixelShader* m_pixel_shader;
-
 	ConstantBuffer* m_constant_buffer;
-
-	Cube* m_cube1;
-	Cube* m_cube2;
-	Cube* m_cube3;
-
-	float cube_rotx;
-	float cube_roty;
-
-	std::vector<Cube*> m_cubes;
 
 	std::vector<AGameObject*> m_game_objects;
 
@@ -75,20 +64,11 @@ private:
 	void* m_shader_byte_code = nullptr;
 	size_t m_size_shader = 0;
 
-	Vector3D m_boundsMin;
-	Vector3D m_boundsMax;
-
-	Plane* m_plane;
-
 	std::chrono::time_point<std::chrono::steady_clock> m_old_time;
 	float deltaTime = 0.0f;
 
 	float m_target_fps = 60.0f;
 	float m_target_frame_time = 1.0f / m_target_fps;
-
-
-	float m_scale_cube = 1.0f;
-
 
 
 private:

@@ -32,7 +32,7 @@ void Camera::update(float deltaTime)
 	updateViewMatrix();
 }
 
-void Camera::draw(Matrix4x4 projectionMatrix, VertexShader* vertexShader, PixelShader* pixelShader)
+void Camera::draw(Matrix4x4 projectionMatrix)
 {
 	
 }

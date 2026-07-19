@@ -18,17 +18,12 @@ bool DeviceContext::clearRenderTargetColor(SwapChain* swap_chain, float red, flo
 {
 	float clear_color[] = { red, green, blue, alpha };
 
-	// 1. Clear the color buffer (Your existing code)
 	m_device_context->ClearRenderTargetView(swap_chain->m_render_target_view, clear_color);
 
-	// 2. Clear the depth buffer (NEW CODE)
-	// We clear the depth to 1.0f (furthest away) so new pixels will easily pass the depth test
 	if (swap_chain->m_depth_stencil_view) {
 		m_device_context->ClearDepthStencilView(swap_chain->m_depth_stencil_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
-	// 3. Bind BOTH views to the Output Merger stage (UPDATED CODE)
-	// Change the last parameter from NULL to your new depth view
 	m_device_context->OMSetRenderTargets(1, &swap_chain->m_render_target_view, swap_chain->m_depth_stencil_view);
 
 	return true;
@@ -108,14 +103,14 @@ void DeviceContext::clearRasterizerState(RasterizerState* rasterizer_state) // c
 	}
 }
 
-void DeviceContext::setConstantBuffer(VertexShader* vertex_shader, ConstantBuffer* constant_buffer)
+void DeviceContext::setConstantBuffer(VertexShader* vertex_shader, ConstantBuffer* constant_buffer, unsigned int slot)
 {
-	m_device_context->VSSetConstantBuffers(0, 1, &constant_buffer->m_buffer);
+	m_device_context->VSSetConstantBuffers(slot, 1, &constant_buffer->m_buffer);
 }
 
-void DeviceContext::setConstantBuffer(PixelShader* pixel_shader, ConstantBuffer* constant_buffer)
+void DeviceContext::setConstantBuffer(PixelShader* pixel_shader, ConstantBuffer* constant_buffer, unsigned int slot)
 {
-	m_device_context->PSSetConstantBuffers(0, 1, &constant_buffer->m_buffer);
+	m_device_context->PSSetConstantBuffers(slot, 1, &constant_buffer->m_buffer);
 }
 
 void DeviceContext::setIndexBuffer(IndexBuffer* index_buffer)

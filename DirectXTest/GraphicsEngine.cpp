@@ -69,13 +69,30 @@ bool GraphicsEngine::init()
 	m_dxgi_device->GetParent(__uuidof(IDXGIAdapter), (void**)&m_dxgi_adapter); // Get the adapter from the device
 	m_dxgi_adapter->GetParent(__uuidof(IDXGIFactory), (void**)&m_dxgi_factory); // Get the factory from the adapter
 
+	D3D11_SAMPLER_DESC sampler_desc = {};
+	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // Enable horizontal repeating/wrapping
+	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP; // Enable vertical repeating/wrapping
+	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.MipLODBias = 0.0f;
+	sampler_desc.MaxAnisotropy = 1;
+	sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	sampler_desc.MinLOD = 0;
+	sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
 
+	HRESULT hr = m_d3d_device->CreateSamplerState(&sampler_desc, &m_layout_sampler_state);
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	return true;
 }
 
 bool GraphicsEngine::release()
 {
+	if (m_layout_sampler_state) m_layout_sampler_state->Release();
+
 	m_dxgi_device->Release();
 	m_dxgi_adapter->Release();
 	m_dxgi_factory->Release();
@@ -171,6 +188,7 @@ bool GraphicsEngine::compilePixelShader(const wchar_t* file_name, const char* en
 
 void GraphicsEngine::releaseCompiledShader()
 {
+
 	if (m_blob) m_blob->Release();
 
 }

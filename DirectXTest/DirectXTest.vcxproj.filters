@@ -51,20 +51,11 @@
     <Filter Include="GameEngine\GraphicsEngine\AGameObject">
       <UniqueIdentifier>{b9f22302-870e-46f9-b1b3-7bbc85c88317}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\GraphicsEngine\Cube">
-      <UniqueIdentifier>{0f1a5701-9709-4d7d-b178-d9792cb6c5c7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\InputSystem">
       <UniqueIdentifier>{97c867bb-7256-4b14-a605-5927f6e3d9c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameEngine\GraphicsEngine\Plane">
-      <UniqueIdentifier>{01078058-ac56-4a13-ba7a-86a141e2dd4e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameEngine\Command System">
       <UniqueIdentifier>{a81c0188-f94b-4f4f-8ac8-03ae498184a8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameEngine\GraphicsEngine\Sphere">
-      <UniqueIdentifier>{2d008a58-36d5-4b7d-aa5a-7b2f98dd8306}</UniqueIdentifier>
     </Filter>
     <Filter Include="GameEngine\GraphicsEngine\Camera">
       <UniqueIdentifier>{a638a676-4895-4f5e-a662-8e33cbc4b281}</UniqueIdentifier>
@@ -75,6 +66,24 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="GameEngine\ImGui">
+      <UniqueIdentifier>{a207e494-f14c-4e24-a8f9-33a0614620ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\Primitives">
+      <UniqueIdentifier>{08fbd4fe-373c-439b-906d-1a2595d94def}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\Primitives\Cylinder">
+      <UniqueIdentifier>{79ff804e-ef4a-4f0a-936c-ef7f0982aa12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\Primitives\Cube">
+      <UniqueIdentifier>{0f1a5701-9709-4d7d-b178-d9792cb6c5c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\Primitives\Sphere">
+      <UniqueIdentifier>{2d008a58-36d5-4b7d-aa5a-7b2f98dd8306}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameEngine\GraphicsEngine\Primitives\Plane">
+      <UniqueIdentifier>{01078058-ac56-4a13-ba7a-86a141e2dd4e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -118,7 +127,7 @@
       <Filter>GameEngine\GraphicsEngine\AGameObject</Filter>
     </ClCompile>
     <ClCompile Include="Cube.cpp">
-      <Filter>GameEngine\GraphicsEngine\Cube</Filter>
+      <Filter>GameEngine\GraphicsEngine\Primitives\Cube</Filter>
     </ClCompile>
     <ClCompile Include="InputSystem.cpp">
       <Filter>GameEngine\InputSystem</Filter>
@@ -127,37 +136,16 @@
       <Filter>GameEngine\Command System</Filter>
     </ClCompile>
     <ClCompile Include="Plane.cpp">
-      <Filter>GameEngine\GraphicsEngine\Plane</Filter>
+      <Filter>GameEngine\GraphicsEngine\Primitives\Plane</Filter>
     </ClCompile>
     <ClCompile Include="Sphere.cpp">
-      <Filter>GameEngine\GraphicsEngine\Sphere</Filter>
+      <Filter>GameEngine\GraphicsEngine\Primitives\Sphere</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>GameEngine\GraphicsEngine\Camera</Filter>
     </ClCompile>
     <ClCompile Include="SceneCameraHandler.cpp">
       <Filter>GameEngine\GraphicsEngine\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_tables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_widgets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AUIScreen.cpp">
       <Filter>GameEngine\UI</Filter>
@@ -169,9 +157,51 @@
       <Filter>GameEngine\UI</Filter>
     </ClCompile>
     <ClCompile Include="HierarchyScreen.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>GameEngine\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialInspectorScreen.cpp">
+      <Filter>GameEngine\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerScreen.cpp">
+      <Filter>GameEngine\UI</Filter>
     </ClCompile>
     <ClCompile Include="ToolbarScreen.cpp">
+      <Filter>GameEngine\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui.cpp">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_demo.cpp">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_draw.cpp">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreditsScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>GameEngine\GraphicsEngine\Primitives\Cylinder</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLibrary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -219,7 +249,7 @@
       <Filter>GameEngine\GraphicsEngine\AGameObject</Filter>
     </ClInclude>
     <ClInclude Include="Cube.h">
-      <Filter>GameEngine\GraphicsEngine\Cube</Filter>
+      <Filter>GameEngine\GraphicsEngine\Primitives\Cube</Filter>
     </ClInclude>
     <ClInclude Include="InputSystem.h">
       <Filter>GameEngine\InputSystem</Filter>
@@ -237,7 +267,7 @@
       <Filter>GameEngine\Command System</Filter>
     </ClInclude>
     <ClInclude Include="Plane.h">
-      <Filter>GameEngine\GraphicsEngine\Plane</Filter>
+      <Filter>GameEngine\GraphicsEngine\Primitives\Plane</Filter>
     </ClInclude>
     <ClInclude Include="Command.h">
       <Filter>GameEngine\Command System</Filter>
@@ -249,37 +279,13 @@
       <Filter>GameEngine\Command System</Filter>
     </ClInclude>
     <ClInclude Include="Sphere.h">
-      <Filter>GameEngine\GraphicsEngine\Sphere</Filter>
+      <Filter>GameEngine\GraphicsEngine\Primitives\Sphere</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>GameEngine\GraphicsEngine\Camera</Filter>
     </ClInclude>
     <ClInclude Include="SceneCameraHandler.h">
       <Filter>GameEngine\GraphicsEngine\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imconfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_rectpack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_textedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\backends\imgui_impl_dx11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\backends\imgui_impl_win32.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AUIScreen.h">
       <Filter>GameEngine\UI</Filter>
@@ -294,6 +300,60 @@
       <Filter>GameEngine\UI</Filter>
     </ClInclude>
     <ClInclude Include="ToolbarScreen.h">
+      <Filter>GameEngine\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfilerScreen.h">
+      <Filter>GameEngine\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialInspectorScreen.h">
+      <Filter>GameEngine\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imconfig.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\backends\imgui_impl_dx11.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\backends\imgui_impl_win32.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_internal.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_rectpack.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_textedit.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_truetype.h">
+      <Filter>GameEngine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreditsScreen.h">
+      <Filter>GameEngine\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.h">
+      <Filter>GameEngine\GraphicsEngine\Primitives\Cylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderNames.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

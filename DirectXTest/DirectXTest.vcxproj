@@ -25,7 +25,9 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CommandSystem.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="CreditsScreen.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="DeviceContext.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="HierarchyScreen.cpp" />
@@ -40,14 +42,17 @@
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="InspectorScreen.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="MaterialInspectorScreen.cpp" />
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="ProfilerScreen.cpp" />
     <ClCompile Include="RasterizerState.cpp" />
     <ClCompile Include="SceneCameraHandler.cpp" />
+    <ClCompile Include="ShaderLibrary.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ToolbarScreen.cpp" />
     <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
@@ -62,7 +67,9 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandSystem.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="CreditsScreen.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="Cylinder.h" />
     <ClInclude Include="DeviceContext.h" />
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="HierarchyScreen.h" />
@@ -78,6 +85,7 @@
     <ClInclude Include="InputListener.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="InspectorScreen.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialInspectorScreen.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="PixelShader.h" />
@@ -86,12 +94,17 @@
     <ClInclude Include="ProfilerScreen.h" />
     <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="SceneCameraHandler.h" />
+    <ClInclude Include="ShaderLibrary.h" />
+    <ClInclude Include="ShaderNames.h" />
     <ClInclude Include="SpawnSphereCommand.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="ToolbarScreen.h" />
     <ClInclude Include="TransformCubeCommand.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="UIManager.h" />
+    <ClInclude Include="Vector2D.h" />
     <ClInclude Include="Vector3D.h" />
     <ClInclude Include="Vector4D.h" />
     <ClInclude Include="VertexBuffer.h" />
@@ -215,7 +228,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;user32.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;user32.lib;windowscodecs.lib;ole32.lib</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderType>

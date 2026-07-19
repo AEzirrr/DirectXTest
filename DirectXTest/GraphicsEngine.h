@@ -30,6 +30,7 @@ public:
 	ConstantBuffer* createConstantBuffer();
 
 	ID3D11Device* getDevice() { return m_d3d_device; }
+	ID3D11SamplerState* getSamplerState() { return this->m_layout_sampler_state; }
 public:
 	bool compileVertexShader(const wchar_t* file_name, const char* entry_point_name, void** shader_byte_code, size_t* byte_code_size);
 	bool compilePixelShader(const wchar_t* file_name, const char* entry_point_name, void** shader_byte_code, size_t* byte_code_size);
@@ -40,6 +41,7 @@ public:
 	static GraphicsEngine* getInstance();
 
 private:
+	ID3D11SamplerState* m_layout_sampler_state = nullptr;
 	DeviceContext* m_imm_device_context;
 
 private:
